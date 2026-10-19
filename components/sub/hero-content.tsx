@@ -2,74 +2,87 @@
 
 import { SparklesIcon } from "@heroicons/react/24/solid";
 import { motion } from "framer-motion";
-import Image from "next/image";
 
 import {
   slideInFromLeft,
-  slideInFromRight,
   slideInFromTop,
 } from "@/lib/motion";
 
 export const HeroContent = () => {
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      className="flex flex-row items-center justify-center px-20 mt-40 w-full z-[20]"
-    >
-      <div className="h-full w-full flex flex-col gap-5 justify-center m-auto text-start">
+    <div className="relative z-[20] flex w-full flex-col items-center justify-center px-5 pt-32 sm:px-8 md:flex-row md:px-20 md:pt-40">
+
+      {/* =========================
+          KONTEN UTAMA
+      ========================= */}
+
+      <div className="m-auto flex w-full max-w-4xl flex-col justify-center gap-5 text-center md:max-w-none md:text-start">
+
+        {/* LABEL */}
+
         <motion.div
-          variants={slideInFromTop}
-          className="Welcome-box py-[8px] px-[7px] border border-[#7042f88b] opacity-[0.9]]"
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="Welcome-box mx-auto flex w-fit items-center border border-[#7042f88b] py-[8px] px-[12px] opacity-90 md:mx-0"
         >
-          <SparklesIcon className="text-[#b49bff] mr-[10px] h-5 w-5" />
-          <h1 className="Welcome-text text-[13px]">
-            Fullstack Developer Portfolio
+          <SparklesIcon className="mr-[10px] h-5 w-5 text-[#b49bff]" />
+
+          <h1 className="Welcome-text text-[12px] sm:text-[13px]">
+            MEDIA PEMBELAJARAN SIJA
           </h1>
         </motion.div>
 
+        {/* JUDUL */}
+
         <motion.div
-          variants={slideInFromLeft(0.5)}
-          className="flex flex-col gap-6 mt-6 text-6xl text-bold text-white max-w-[600px] w-auto h-auto"
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mt-4 flex max-w-[650px] flex-col gap-2 text-4xl font-bold leading-tight text-white sm:text-5xl md:mt-6 md:text-6xl"
         >
           <span>
-            Providing{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-cyan-500">
-              the best
-            </span>{" "}
-            project experience.
+            Belajar{" "}
+            <span className="bg-gradient-to-r from-purple-500 to-cyan-500 bg-clip-text text-transparent">
+              Jaringan
+            </span>
+          </span>
+
+          <span>
+            dengan cara yang{" "}
+            <span className="bg-gradient-to-r from-purple-500 to-purple-300 bg-clip-text text-transparent">
+              lebih mudah.
+            </span>
           </span>
         </motion.div>
 
+        {/* DESKRIPSI */}
+
         <motion.p
-          variants={slideInFromLeft(0.8)}
-          className="text-lg text-gray-400 my-5 max-w-[600px]"
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="my-3 max-w-[560px] text-base leading-7 text-gray-400 sm:text-lg md:my-5"
         >
-          I&apos;m a Full Stack Software Engineer with experience in Website,
-          Mobile, and Software development. Check out my projects and skills.
+          Pelajari dasar jaringan komputer melalui materi
+          IP Address, Subnetting, Routing, dan VLAN
+          dengan penjelasan yang sederhana dan mudah dipahami.
         </motion.p>
 
+        {/* TOMBOL */}
+
         <motion.a
-          variants={slideInFromLeft(1)}
-          className="py-2 button-primary text-center text-white cursor-pointer rounded-lg max-w-[200px]"
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          href="#ai"
+          className="button-primary mx-auto max-w-[200px] rounded-lg px-6 py-3 text-center text-white transition-all md:mx-0"
         >
-          Learn more
+          Mulai Belajar →
         </motion.a>
+
       </div>
 
-      <motion.div
-        variants={slideInFromRight(0.8)}
-        className="w-full h-full flex justify-center items-center"
-      >
-        <Image
-          src="/hero-bg.svg"
-          alt="work icons"
-          height={650}
-          width={650}
-          draggable={false}
-          className="select-none"
-        />
-      </motion.div>
-    </motion.div>
+    </div>
   );
 };
