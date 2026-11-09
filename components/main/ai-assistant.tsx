@@ -4,9 +4,11 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
 type ChatHistory = {
+  id?: number;
   question: string;
   answer: string;
-  image?: string;
+  image?: string | null;
+  createdAt?: string;
 };
 
 const EXAMPLE_QUESTIONS = [
@@ -26,16 +28,38 @@ export const AIAssistant = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  
   useEffect(() => {
-    const savedHistory = localStorage.getItem("sinetra-history");
+    let cancelled = false;
 
-    if (savedHistory) {
+    async function loadHistory() {
       try {
-        setHistory(JSON.parse(savedHistory));
-      } catch {
-        localStorage.removeItem("sinetra-history");
+        const response = await fetch("/api/history", {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          if (response.status !== 401) {
+            console.error("Gagal memuat riwayat obrolan.");
+          }
+          return;
+        }
+
+        const data = await response.json();
+
+        if (!cancelled) {
+          setHistory(Array.isArray(data.history) ? data.history : []);
+        }
+      } catch (error) {
+        console.error("Gagal memuat riwayat:", error);
       }
     }
+
+    loadHistory();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleImageChange = (
@@ -93,21 +117,33 @@ export const AIAssistant = () => {
 
       setAnswer(newAnswer);
 
-      const newHistory = [
-        ...history,
-        {
+      // Simpan pertanyaan dan jawaban ke database melalui API.
+      const saveResponse = await fetch("/api/history", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           question: currentQuestion,
           answer: newAnswer,
-          image: image || undefined,
-        },
-      ];
+          image,
+        }),
+      });
 
-      setHistory(newHistory);
+      if (saveResponse.ok) {
+        const savedData = await saveResponse.json();
 
-      localStorage.setItem(
-        "sinetra-history",
-        JSON.stringify(newHistory)
-      );
+        setHistory((previous) => [
+          savedData.history,
+          ...previous,
+        ]);
+      } else {
+        const saveData = await saveResponse.json().catch(() => ({}));
+        console.error(
+          "Jawaban AI muncul, tetapi riwayat gagal disimpan:",
+          saveData.error || saveResponse.statusText
+        );
+      }
 
       setMessage("");
       setImage(null);
@@ -126,9 +162,30 @@ export const AIAssistant = () => {
     }
   };
 
-  const clearHistory = () => {
-    setHistory([]);
-    localStorage.removeItem("sinetra-history");
+  const clearHistory = async () => {
+    const confirmed = window.confirm(
+      "Yakin ingin menghapus semua riwayat obrolan?"
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch("/api/history", {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || "Gagal menghapus riwayat.");
+        return;
+      }
+
+      setHistory([]);
+    } catch (error) {
+      console.error("Gagal menghapus riwayat:", error);
+      alert("Tidak dapat terhubung ke server.");
+    }
   };
 
   const removeImage = () => {
@@ -453,7 +510,7 @@ export const AIAssistant = () => {
                 {history.map((chat, index) => (
 
                   <motion.div
-                    key={index}
+                    key={chat.id ?? `${chat.question}-${index}`}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
